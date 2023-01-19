@@ -26,7 +26,7 @@ public class FileMoveResponse {
         private String mResponseCode;
         private String mResponseMessage;
 
-        public FileMoveResponse.Builder withResponseCode(String responseCode) {
+        public Builder withResponseCode(String responseCode) {
             mResponseCode = responseCode;
             return this;
         }

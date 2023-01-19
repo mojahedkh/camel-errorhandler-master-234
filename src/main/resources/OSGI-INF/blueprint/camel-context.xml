@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf"
@@ -6,25 +7,32 @@
              http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
              http://camel.apache.org/schema/blueprint/cxf http://camel.apache.org/schema/blueprint/cxf/camel-cxf.xsd
              http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd
-   http://camel.apache.org/schema/blueprint/cxf ">
+             http://camel.apache.org/schema/blueprint/cxf ">
 
     <!--Rest Servers Endpoint-->
-    <cxf:rsServer id="fileRestService"
-                  address="http://0.0.0.0:9000/fileService"
+    <cxf:rsServer id="fileRenameService"
+                  address="http://localhost:9001"
                   serviceClass="CxfRestApi.service.FileService"
                   loggingFeatureEnabled="true">
     </cxf:rsServer>
-
-
-    <!--End Rest Servers Endpoint-->
+    <!--End Rest-Servers Endpoint-->
 
     <!--Beans-->
     <bean id="RenameFile" class="CxfRestApi.beans.RenameFile"/>
-    <bean id="GenerateToken" class="CxfRestApi.beans.TokenBasedError"/>
     <bean id="AddToList" class="CxfRestApi.beans.AddToList"/>
-    <bean id="ProcessFile" class="CxfRestApi.beans.ProcessFile"/>
     <bean id="fileRestServiceNormlizer" class="CxfRestApi.beans.FileRestServiceNormlizer"/>
+    <bean id="ProcessFile" class="CxfRestApi.beans.ProcessFile"/>
     <!--End Beans -->
+
+    <!--    Database connection -->
+<!--        <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"-->
+<!--              destroy-method="close">-->
+<!--            <property name="driverClassName" value="com.mysql.jdbc.Driver" />-->
+<!--            <property name="url" value="jdbc:mysql://localhost/cameldb" />-->
+<!--            <property name="username" value="root" />-->
+<!--            <property name="password" value="root" />-->
+<!--        </bean>-->
+    <!--    End bean to connect Database -->
 
     <camelContext xmlns="http://camel.apache.org/schema/blueprint"
                   xmlns:order="http://fabric8.com/examples/order/v7"
@@ -32,51 +40,79 @@
 
         <onException>
             <exception>java.lang.Exception</exception>
+
             <handled>
                 <constant>true</constant>
             </handled>
-            <log message="Exception handling ${body} ,${header.ErrorType}"/>
-            <bean ref="GenerateToken" method="generateTokenToFileName"/>
 
-            <recipientList>
-                <simple>file:CXF_TEST/Errors/${header.ErrorType}/?fileName=${header.generateToken}.txt</simple>
-            </recipientList>
+            <log loggingLevel="ERROR" message="there is Exception Occur here "/>
+            <log message="Exception handling ${body} ,${header.ErrorType}"/>
+            <bean ref="fileRestServiceNormlizer" method="responseException"/>
+            <marshal>
+                <json library="Gson"/>
+            </marshal>
         </onException>
 
+        <propertyPlaceholder id="properties" location="Camel.properties"/>
+
         <route id="ReadingFromDirectory">
-            <from uri="file:CXF_TEST/files/?noop=true"/>
+            <from uri="file:{{file.uri}}/files/?noop=true"/>
             <setHeader headerName="fileName">
                 <simple>${file:name.noext}</simple>
             </setHeader>
-
             <process ref="AddToList"/>
-            <log message=" hello ${body} "/>
+            <log message=" file ---> ${body} "/>
             <to uri="file:CXF_TEST/output?fileExist=Append"/>
         </route>
 
-        <route id="SendFileToSource">
-            <from uri="cxfrs:bean:fileRestService"/>
+
+        <route id="listingFromCxf">
+            <from uri="cxfrs:bean:fileRenameService"/>
+            <when>
+                <simple> ${header.operationName} == 'moveFile'</simple>
+                <to uri="direct:fileRenameService"/>
+            </when>
+            <when>
+                <simple> ${header.operationName} == 'insertListOfFile'</simple>
+                <to uri="direct:fileInsertService"/>
+            </when>
+        </route>
+
+
+        <route id="fileRenameService">
+            <from uri="direct:fileRenameService"/>
+            <bean ref="fileRestServiceNormlizer" method="normlizeFileMoveRequest"/>
+
+            <unmarshal>
+                <json library="Gson"
+                      unmarshalTypeName="CxfRestApi.model.FileRenameRequest"/>
+            </unmarshal>
+            <to uri="direct:renameFileRoute"/>
+        </route>
+
+        <route id="fileInsertService">
+            <from uri="direct:fileInsertService"/>
             <bean ref="fileRestServiceNormlizer" method="normlizeFileMoveRequest"/>
             <unmarshal>
                 <json library="Gson"
                       unmarshalTypeName="CxfRestApi.model.FileMoveRequest"/>
             </unmarshal>
-            <bean ref="fileRestServiceNormlizer" method="returnResponse"/>
-
-<!--            <log loggingLevel="INFO" message="header request : ${header.operationName}"/>-->
-<!--            <log loggingLevel="INFO" message="body request : ${body}"/>-->
-<!--            <process ref="ProcessFile"/>-->
-<!--            <log loggingLevel="INFO" message="body request : ${body}"/>-->
-<!--            <log loggingLevel="INFO" message="header request : ${headers}"/>-->
-<!--            <to uri="direct:SendFileToRename"/>-->
+            <bean ref="fileRestServiceNormlizer" method="returnResponseInsertFilesName"/>
+            <marshal>
+                <json library="Gson"/>
+            </marshal>
         </route>
 
-        <route id="RequestFileFromSource">
-            <from uri="direct:SendFileToRename"/>
+        <route id="renameFileRoute">
+            <from uri="direct:renameFileRoute"/>
             <log message="Recived File from  (SendFileToSource) route , Request body :- ${body} "/>
-            <to uri="bean:RenameFile?method=RenameFileFromTo"/>
-            <to uri="file:CXF_TEST/files/?fileName=${body}.txt"/>
+            <bean ref="RenameFile" method="RenameFileFromTo" />
+            <bean ref="fileRestServiceNormlizer" method="returnResponseFileName" />
+            <marshal>
+                <json library="Gson" />
+            </marshal>
         </route>
+
 
     </camelContext>
 </blueprint>

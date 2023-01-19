@@ -6,12 +6,22 @@ import CxfRestApi.model.FileMoveRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
-@Path("")
+@Path("fileService")
 public interface FileService {
 
     @POST
-    @Path("/fileMove")
+    @Path("/moveFile")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String moveFile(String fileName) throws Exception;
+
+    @POST
+    @Path("/insertListOfFile")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String insertListOfFile(String fileName) throws Exception;
+
+
+
+
 }

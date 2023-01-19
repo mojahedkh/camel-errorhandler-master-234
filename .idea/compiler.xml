@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="camel-errorhandler-master" />
         <module name="beginner-camel-errorhandler" />
+        <module name="beginner-camel" />
       </profile>
     </annotationProcessing>
   </component>

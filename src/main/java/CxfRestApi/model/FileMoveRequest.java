@@ -4,24 +4,25 @@ package CxfRestApi.model;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.List;
 
 
 public class FileMoveRequest {
-    @SerializedName("fileName")
-    private String fileName;
+    @SerializedName("filesName")
+    private String[] fileName;
 
     public FileMoveRequest() {
     }
 
-    public FileMoveRequest(String fileName) {
+    public FileMoveRequest(String[] fileName) {
         this.fileName = fileName;
     }
 
-    public String getFileName() {
+    public String[] getFileName() {
         return fileName;
     }
 
-    public void setFileName(String fileName) {
+    public void setFileName(String[] fileName) {
         this.fileName = fileName;
     }
 

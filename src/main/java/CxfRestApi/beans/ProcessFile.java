@@ -8,25 +8,19 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.apache.camel.model.dataformat.JaxbDataFormat;
+import org.apache.cxf.transport.http.Address;
 
-public class ProcessFile implements Processor {
-    @Override
-    public void process(Exchange exchange) throws Exception {
-            FileMoveRequest message =   exchange.getIn().getBody(FileMoveRequest.class);
-            Constants.Loggers.log.info(message.getFileName()+"");
+public class ProcessFile  {
+    public static void process(String fileName) throws Exception {
 
-        if (message.getFileName().isEmpty()) {
+        if (fileName.isEmpty()) {
             Constants.Loggers.log.error("File name is empty from request body");
-            exchange.getIn().setBody("Request body is empty cant processed");
-            exchange.getIn().setHeader("ErrorType", Constants.Messages.InvlidFileNameError);
             throw new InvalidFileNameException(" File name is empty" + Constants.Messages.FAILED);
         }
 
-        else if (Constants.dataInsideList().contains(message.getFileName()) == false) {
+        else if (Constants.dataInsideList().contains(fileName) == false) {
             Constants.Loggers.log.error("File name does not contain in the directory ");
-            exchange.getIn().setBody("No file with this name exists");
-            exchange.getIn().setHeader("ErrorType", Constants.Messages.FileNotFoundError);
-            throw new FileNotFoundException("File name does not contain in the directory");
+            throw new FileNotFoundException("File name does not contain in the directory"+Constants.Messages.FAILED);
         }
     }
 }

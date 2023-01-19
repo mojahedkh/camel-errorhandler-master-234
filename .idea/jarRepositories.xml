@@ -7,9 +7,24 @@
       <option name="url" value="https://repo.maven.apache.org/maven2" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="jboss-ga-repository" />
+      <option name="name" value="jboss-ga-repository" />
+      <option name="url" value="http://maven.repository.redhat.com/techpreview/all" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="jboss-public-repository" />
+      <option name="name" value="jboss-public-repository" />
+      <option name="url" value="http://repository.jboss.org/nexus/content/repositories/public/" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="fuse-public-repository" />
       <option name="name" value="FuseSource Community Release Repository" />
       <option name="url" value="https://repo.fusesource.com/nexus/content/groups/public" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="jboss-fuse-public-repository" />
+      <option name="name" value="jboss-fuse-public-repository" />
+      <option name="url" value="https://repo.fusesource.com/nexus/content/groups/public/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="central" />
@@ -25,6 +40,11 @@
       <option name="id" value="jboss.community" />
       <option name="name" value="JBoss Community repository" />
       <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="jboss-ga-repository-secure" />
+      <option name="name" value="jboss-ga-repository-secure" />
+      <option name="url" value="https://maven.repository.redhat.com/techpreview/all" />
     </remote-repository>
   </component>
 </project>

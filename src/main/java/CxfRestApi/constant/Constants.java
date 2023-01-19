@@ -1,10 +1,12 @@
 package CxfRestApi.constant;
 
 import CxfRestApi.beans.AddToList;
+import CxfRestApi.model.FileMoveRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,5 +32,13 @@ public class Constants {
     public static List<String> dataInsideList(){
         return AddToList.fileName;
     }
-
+    public static String filesName(FileMoveRequest fileMoveRequest){
+        List<String> fileNames = new ArrayList<String>();
+        String allName = new String();
+        for (String name : fileMoveRequest.getFileName()) {
+            fileNames.add(name);
+            allName=allName+" , "+name;
+        }
+        return allName;
+    }
 }
