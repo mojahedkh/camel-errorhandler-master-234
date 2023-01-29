@@ -39,7 +39,6 @@ public class FileRestServiceNormlizer {
         //file move request
         FileMoveRequest fileMoveRequest = (FileMoveRequest) exchange.getIn().getBody();
         String allName = Constants.filesName(fileMoveRequest);
-        ProcessFile.process(allName);
 
         //file response
         FileMoveResponse fileMoveResponse = new FileMoveResponse.Builder().
@@ -53,7 +52,6 @@ public class FileRestServiceNormlizer {
 
     public FileMoveResponse returnResponseFileName(Exchange exchange) throws Exception {
         String message = exchange.getIn().getHeader("message", String.class);
-        ProcessFile.process(message);
 
         FileMoveResponse fileMoveResponse = new FileMoveResponse.Builder().
                 withResponseCode("0").

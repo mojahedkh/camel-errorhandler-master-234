@@ -1,7 +1,9 @@
 package CxfRestApi.beans;
 
+import CxfRestApi.constant.Constants;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.camel.language.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +20,11 @@ public class AddToList implements Processor {
 
     @Override
     public void process(Exchange exchange) throws Exception {
+
         String fileNameFromHeader = exchange.getIn().getHeader("fileName", String.class);
         fileName.add(fileNameFromHeader);
-        exchange.getIn().setBody(fileNameFromHeader);
+        Constants.printAll(fileName);
+
     }
+
 }

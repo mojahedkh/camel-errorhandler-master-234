@@ -1,4 +1,3 @@
-
 package CxfRestApi.model;
 
 import javax.annotation.Generated;

@@ -2,6 +2,7 @@ package CxfRestApi.constant;
 
 import CxfRestApi.beans.AddToList;
 import CxfRestApi.model.FileMoveRequest;
+import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,5 +41,12 @@ public class Constants {
             allName=allName+" , "+name;
         }
         return allName;
+    }
+    public static void printAll(List<String> fileName) throws Exception {
+        int index = 0;
+        for (String filesName : fileName) {
+            Constants.Loggers.log.info(" Inside file name "+"["+index+"]"+filesName );
+            index++;
+        }
     }
 }

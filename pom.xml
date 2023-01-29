@@ -75,7 +75,6 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-jackson</artifactId>
-
         </dependency>
 
         <dependency>
@@ -188,11 +187,16 @@
             <version>${cxfapi.version}</version>
         </dependency>
 
-
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-http</artifactId>
+            <version>2.15.1.redhat-621084</version>
         </dependency>
 
         <dependency>
@@ -214,6 +218,19 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-quartz</artifactId>
+            <version>2.15.1.redhat-621084</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-quartz2</artifactId>
+            <version>2.15.1.redhat-621084</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.17</version>
@@ -232,8 +249,8 @@
         </dependency>
 
     </dependencies>
-
     <build>
+
         <finalName>File_Rest_Jawwal_Project</finalName>
         <plugins>
             <plugin>
@@ -244,9 +261,7 @@
                 <configuration>
                     <instructions>
                         <Export-Package>!*</Export-Package>
-                        <Import-Package>
-                            *
-                        </Import-Package>
+                        <Import-Package>*</Import-Package>
                         <Embed-Dependency>
                             groupId=com.googlecode.json-simple;artifactId=json-simple;scope=compile,
                             groupId=com.google.code.gson;artifactId=gson;scope=compile ,
