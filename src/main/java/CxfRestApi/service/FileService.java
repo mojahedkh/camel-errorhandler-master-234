@@ -21,7 +21,17 @@ public interface FileService {
     @Produces(MediaType.APPLICATION_JSON)
     public String insertListOfFile(String fileName) throws Exception;
 
+    @POST
+    @Path("/insertFileName")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String insertFileName(String fileName) throws Exception;
 
+    @GET
+    @Path("/getFileName")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void getFileName() throws Exception;
 
 
 }

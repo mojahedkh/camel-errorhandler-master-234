@@ -1,21 +1,12 @@
 package CxfRestApi.beans;
 
-import CxfRestApi.Exception.FileNotFoundException;
-import CxfRestApi.Exception.InvalidFileNameException;
-import CxfRestApi.constant.Constants;
+import CxfRestApi.constant.Operation;
 import CxfRestApi.model.FileMoveRequest;
 import CxfRestApi.model.FileMoveResponse;
 import CxfRestApi.model.FileRenameRequest;
 import CxfRestApi.model.ResponseException;
-import org.apache.camel.Body;
 import org.apache.camel.Exchange;
-import org.apache.camel.language.Constant;
-import org.apache.cxf.headers.Header;
 import org.apache.cxf.message.MessageContentsList;
-
-import javax.xml.soap.SAAJResult;
-import java.lang.reflect.Method;
-import java.util.*;
 
 /**
  * @author Mosab.Shqair
@@ -27,7 +18,7 @@ public class FileRestServiceNormlizer {
 
     public void normlizeFileMoveRequest(Exchange exchange) throws Exception {
         MessageContentsList msgList = (MessageContentsList) exchange.getIn().getBody();
-        Constants.Loggers.log.info("MessageContentsList" + msgList);
+        Operation.Loggers.log.info("MessageContentsList" + msgList);
 
         if (msgList != null) {
             exchange.getIn().setBody(msgList.get(0));
@@ -38,7 +29,7 @@ public class FileRestServiceNormlizer {
 
         //file move request
         FileMoveRequest fileMoveRequest = (FileMoveRequest) exchange.getIn().getBody();
-        String allName = Constants.filesName(fileMoveRequest);
+        String allName = Operation.filesName(fileMoveRequest);
 
         //file response
         FileMoveResponse fileMoveResponse = new FileMoveResponse.Builder().
@@ -73,4 +64,16 @@ public class FileRestServiceNormlizer {
         exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 201);
         return responseException;
     }
+
+    public void fileRenameRequest(Exchange exchange) {
+        FileRenameRequest filename = exchange.getIn().getBody(FileRenameRequest.class);
+        FileRenameRequest fileRenameRequest = new FileRenameRequest();
+        fileRenameRequest.setFileName(filename.getFileName());
+        Operation.File.setFileName(filename.getFileName());
+        exchange.getOut().setBody(fileRenameRequest);
+    }
+    public String getFileName(){
+        return Operation.File.getFileName();
+    }
+
 }
