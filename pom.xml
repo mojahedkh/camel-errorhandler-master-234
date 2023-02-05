@@ -208,7 +208,6 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-sql</artifactId>
-            <version>3.20.0</version>
         </dependency>
 
         <dependency>
@@ -267,11 +266,11 @@
                     <instructions>
                         <Export-Package>!*</Export-Package>
                         <Import-Package>
-                            * ,
+                            com.mysql.jdbc, *
                         </Import-Package>
                         <Embed-Dependency>
                             groupId=com.googlecode.json-simple;artifactId=json-simple;scope=compile,
-                            groupId=com.google.code.gson;artifactId=gson;scope=compile ,
+                            groupId=com.google.code.gson;artifactId=gson;scope=compile
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

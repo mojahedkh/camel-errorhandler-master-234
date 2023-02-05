@@ -8,6 +8,8 @@ import CxfRestApi.model.ResponseException;
 import org.apache.camel.Exchange;
 import org.apache.cxf.message.MessageContentsList;
 
+import java.util.Map;
+
 /**
  * @author Mosab.Shqair
  * @date 1/12/2023 9:01 AM
@@ -61,18 +63,22 @@ public class FileRestServiceNormlizer {
                 .withResponseMessage("Failed")
                 .build();
 
-        exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 201);
+        exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 400);
         return responseException;
     }
 
-    public void fileRenameRequest(Exchange exchange) {
-        FileRenameRequest filename = exchange.getIn().getBody(FileRenameRequest.class);
-        FileRenameRequest fileRenameRequest = new FileRenameRequest();
-        fileRenameRequest.setFileName(filename.getFileName());
-        Operation.File.setFileName(filename.getFileName());
-        exchange.getOut().setBody(fileRenameRequest);
+    public FileMoveResponse fileRenameRequest(Exchange exchange) {
+        Map filename = exchange.getIn().getBody(Map.class);
+        FileMoveResponse fileMoveResponse = new FileMoveResponse.Builder().
+                withResponseCode("0").
+                withResponseMessage("Success : file-name " +filename.get("file_name").toString()).
+                build();
+
+        exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE , 201);
+        return fileMoveResponse;
     }
-    public String getFileName(){
+
+    public String getFileName() {
         return Operation.File.getFileName();
     }
 

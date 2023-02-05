@@ -8,6 +8,7 @@ CxfRestApi\constant\Operation$Messages.class
 CxfRestApi\beans\ProcessFile.class
 CxfRestApi\beans\FileRestServiceNormlizer.class
 CxfRestApi\constant\Operation.class
+CxfRestApi\beans\GeneratedOrder.class
 CxfRestApi\beans\TokenBasedError.class
 CxfRestApi\beans\AddToList.class
 CxfRestApi\beans\RenameFile.class

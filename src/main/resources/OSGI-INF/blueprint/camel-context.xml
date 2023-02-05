@@ -22,28 +22,31 @@
         <property name="brokerURL" value="tcp://localhost:61617"/>
     </bean>
 
-
+    <!--Start implmentation beans-->
     <bean id="RenameFile" class="CxfRestApi.beans.RenameFile"/>
     <bean id="AddToList" class="CxfRestApi.beans.AddToList"/>
     <bean id="fileRestServiceNormlizer" class="CxfRestApi.beans.FileRestServiceNormlizer"/>
     <bean id="ProcessFile" class="CxfRestApi.beans.ProcessFile"/>
+    <bean id="generateOrder" class="CxfRestApi.beans.GeneratedOrder"/>
+
     <!--End Beans -->
 
     <!--    Database connection -->
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
           destroy-method="close">
-        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
-        <property name="url" value="jdbc:mysql://localhost:3306/job" />
-        <property name="username" value="root" />
-        <property name="password" value="root" />
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/job?characterEncoding=utf8"/>
+        <property name="username" value="root"/>
+        <property name="password" value="root"/>
     </bean>
 
-<!--    <bean id="sqlComponent" class="org.apache.camel.component.sql.SqlComponent">-->
-<!--        <property name="dataSource" ref="dataSource" />-->
-<!--    </bean>-->
+    <bean id="sql" class="org.apache.camel.component.sql.SqlComponent">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
+
+    <!--    <bean id="LoadBalancing" class="" />-->
     <!--    End bean to connect Database -->
-
 
     <camelContext xmlns="http://camel.apache.org/schema/blueprint"
                   xmlns:order="http://fabric8.com/examples/order/v7"
@@ -51,35 +54,35 @@
 
         <propertyPlaceholder id="properties" location="/properities/Camel.properties"/>
 
-<!--      Exception clause to detect any (exception) occur and handling it  -->
+        <!--      Exception clause to detect any (exception) occur and handling it-->
         <onException>
             <exception>java.lang.Exception</exception>
             <handled>
                 <constant>true</constant>
             </handled>
             <log loggingLevel="ERROR" message="there is Exception Occur here "/>
-            <log message="Exception handling Message payloads :- ${body} , Error Type  :- ${header.ErrorType} "/>
+            <log message="Exception handling Message payloads :- ${body} , Exception messgae   :- ${exception.message}  "/>
             <bean ref="fileRestServiceNormlizer" method="responseException"/>
             <marshal>
                 <json library="Gson"/>
             </marshal>
         </onException>
 
-<!--        Read files name from specific directory -->
-        <route id="ReadingFromDirectory">
-            <from uri="file:{{file.uri}}/files/?noop=true"/>
-            <setHeader headerName="fileName">
-                <simple>${file:name.noext}</simple>
-            </setHeader>
-            <process ref="AddToList"/>
-            <setBody>
-                <simple>${header.fileName}</simple>
-            </setBody>
-            <log message=" file ---> ${body} "/>
-            <to uri="direct:readFromJobEntity"/>
-        </route>
+        <!--        Read files name from specific directory -->
+<!--        <route id="ReadingFromDirectory">-->
+<!--            <from uri="file:{{file.uri}}/files/?noop=true"/>-->
+<!--            <setHeader headerName="fileName">-->
+<!--                <simple>${file:name.noext}</simple>-->
+<!--            </setHeader>-->
+<!--            <process ref="AddToList"/>-->
+<!--            <setBody>-->
+<!--                <simple>${header.fileName}</simple>-->
+<!--            </setBody>-->
+<!--            <log message=" file -&ndash;&gt; ${body} "/>-->
+<!--            <to uri="direct:readFromJobEntity"/>-->
+<!--        </route>-->
 
-<!--        Read from cxf (End Points) and go to route based operation name -->
+        <!--        Read from cxf (End Points) and go to route based operation name -->
         <route id="listingFromCxf">
             <from uri="cxfrs:bean:fileService"/>
             <when>
@@ -106,7 +109,7 @@
             </when>
         </route>
 
-<!--       POST file name to check it if (not null and contain in the directory ) then rename it  -->
+        <!--       POST file name to check it if (not null and contain in the directory ) then rename it  -->
         <route id="fileRenameService">
             <from uri="direct:fileRenameService"/>
             <unmarshal>
@@ -116,7 +119,7 @@
             <to uri="direct:renameFileRoute"/>
         </route>
 
-<!--       POST list of file name method and use this name to insert it to the database -->
+        <!--       POST list of file name method and use this name to insert it to the database -->
         <route id="insertListOfFiles">
             <from uri="direct:insertListOfFiles"/>
             <unmarshal>
@@ -127,34 +130,31 @@
             <marshal>
                 <json library="Gson"/>
             </marshal>
-            <log message="(insertListOfFiles) POST method is calling now ) " />
+            <log message="(insertListOfFiles) POST method is calling now ) "/>
         </route>
 
-<!--       POST file name method and use this name to store in the variable te read it later -->
+        <!--       POST file name method and use this name to store in the variable te read it later -->
         <route id="insertFileName">
             <from uri="direct:insertFileName"/>
             <unmarshal>
                 <json library="Gson"
                       unmarshalTypeName="CxfRestApi.model.FileRenameRequest"/>
             </unmarshal>
-            <bean ref="fileRestServiceNormlizer" method="fileRenameRequest"/>
-            <marshal>
-                <json library="Gson"/>
-            </marshal>
-            <log message="(insertFileName) POST method is calling now ) " />
+            <log message="(insertFileName) POST method is calling now ) "/>
+            <to uri="direct:insertDataToDataBase"/>
         </route>
 
-<!--       GET file method name and initilize it to ""-->
+        <!--       GET file method name and initilize it to ""-->
         <route id="getFileName">
             <from uri="direct:getFileName"/>
             <bean ref="fileRestServiceNormlizer" method="getFileName"/>
             <marshal>
                 <json library="Gson"/>
             </marshal>
-            <log message="(getFileName) GET method is calling now ) " />
+            <log message="(getFileName) GET method is calling now ) "/>
         </route>
 
-<!--       Rename file name from (fileRenameService) request -->
+        <!--       Rename file name from (fileRenameService) request -->
         <route id="renameFileRoute">
             <from uri="direct:renameFileRoute"/>
             <log message="Recived File from  (SendFileToSource) route , Request body :- ${body} "/>
@@ -165,20 +165,28 @@
             </marshal>
         </route>
 
-<!--       Read from file as DataBase value -->
-<!--        <route id="readFromJobEntity">-->
-<!--            <from uri="file:{{file.uri}}/files?doneFileName=input.txt" />-->
-<!--            <log message="data inside job table >> ${body} " />-->
-<!--        </route>-->
+        <route id="insertDataToDataBase">
+            <from uri="direct:insertDataToDataBase"/>
+            <transform>
+                <method ref="generateOrder" method="generateOrder" />
+            </transform>
+            <to uri="sql:{{sql.insertOrder}}"/>
+            <log message="Inserted new order ${body}"/>
+            <bean ref="fileRestServiceNormlizer" method="fileRenameRequest" />
+            <marshal>
+                <json library="Gson" />
+            </marshal>
+        </route>
 
-<!--                <route id="readFromFileEveryTimePeriod">-->
-<!--                    <from uri="quartz://printMessage?cron=0/5+*+*+*+*+?"/>-->
-<!--                    <from uri="file:{{file.uri}}/files/?fileName=input.txt?noop=true"/>-->
-<!--                    <setBody>-->
-<!--                        <simple>Hello every 5 sec</simple>-->
-<!--                    </setBody>-->
-<!--                    <to uri="activemq:queue:fileNameQueue"/>-->
-<!--                </route>-->
+
+        <!--                <route id="readFromFileEveryTimePeriod">-->
+        <!--                    <from uri="quartz://printMessage?cron=0/5+*+*+*+*+?"/>-->
+        <!--                    <from uri="file:{{file.uri}}/files/?fileName=input.txt?noop=true"/>-->
+        <!--                    <setBody>-->
+        <!--                        <simple>Hello every 5 sec</simple>-->
+        <!--                    </setBody>-->
+        <!--                    <to uri="activemq:queue:fileNameQueue"/>-->
+        <!--                </route>-->
 
         <!--        <route id="readFromActiveMq">-->
         <!--            <from uri="activemq:queue:fileNameQueue"/>-->
@@ -191,29 +199,29 @@
                   xmlns:order="http://fabric8.com/examples/order/v7"
                   id="Camel_HttpMethods_Context">
 
-<!--        <route id="postFileName">-->
-<!--            <from uri="quartz://printMessage2?cron=0/5+*+*+*+*+?"/>-->
-<!--            <setHeader headerName="CamelHttpMethod">-->
-<!--                <constant>POST</constant>-->
-<!--            </setHeader>-->
-<!--            <setBody>-->
-<!--                <simple>hello</simple>-->
-<!--            </setBody>-->
-<!--            <bean ref="fileRestServiceNormlizer" method="fileRenameRequest"/>-->
-<!--            <marshal>-->
-<!--                <json library="Gson"/>-->
-<!--            </marshal>-->
-<!--            <to uri="http://localhost:9001/fileService/insertFileName"/>-->
-<!--        </route>-->
+        <!--        <route id="postFileName">-->
+        <!--            <from uri="quartz://printMessage2?cron=0/5+*+*+*+*+?"/>-->
+        <!--            <setHeader headerName="CamelHttpMethod">-->
+        <!--                <constant>POST</constant>-->
+        <!--            </setHeader>-->
+        <!--            <setBody>-->
+        <!--                <simple>hello</simple>-->
+        <!--            </setBody>-->
+        <!--            <bean ref="fileRestServiceNormlizer" method="fileRenameRequest"/>-->
+        <!--            <marshal>-->
+        <!--                <json library="Gson"/>-->
+        <!--            </marshal>-->
+        <!--            <to uri="http://localhost:9001/fileService/insertFileName"/>-->
+        <!--        </route>-->
 
-        <route id="getFileNameRoute">
-            <from uri="quartz://printMessage?cron=0/5+*+*+*+*+?"/>
-            <setHeader headerName="CamelHttpMethod">
-                <constant>GET</constant>
-            </setHeader>
-            <to uri="http://localhost:9001/fileService/getFileName"/>
-            <log message="Response from (getFileName) request is ${body} every 5sec"/>
-        </route>
+        <!--        <route id="getFileNameRoute">-->
+        <!--            <from uri="quartz://printMessage?cron=0/5+*+*+*+*+?"/>-->
+        <!--            <setHeader headerName="CamelHttpMethod">-->
+        <!--                <constant>GET</constant>-->
+        <!--            </setHeader>-->
+        <!--            <to uri="http://localhost:9001/fileService/getFileName"/>-->
+        <!--            <log message="Response from (getFileName) request is ${body} every 5sec"/>-->
+        <!--        </route>-->
 
     </camelContext>
 
