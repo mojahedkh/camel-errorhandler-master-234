@@ -1,6 +1,8 @@
+CxfRestApi\model\File.class
 CxfRestApi\model\FileMoveResponse.class
 CxfRestApi\model\ResponseException.class
 CxfRestApi\service\FileService.class
+CxfRestApi\beans\FileMapper.class
 CxfRestApi\constant\Operation$Loggers.class
 CxfRestApi\constant\Operation$File.class
 CxfRestApi\Exception\FileNotFoundException.class

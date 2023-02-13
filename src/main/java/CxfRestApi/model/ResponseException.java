@@ -8,6 +8,9 @@ public class ResponseException {
     @SerializedName("responseMessage")
     private String mResponseMessage;
 
+    @SerializedName("exceptionMessage")
+    private  String mExceptionMessage ;
+
     public String getResponseCode() {
         return mResponseCode;
     }
@@ -21,6 +24,9 @@ public class ResponseException {
         private String mResponseCode;
         private String mResponseMessage;
 
+        private  String mExceptionMessage ;
+
+
         public ResponseException.Builder withResponseCode(String responseCode) {
             mResponseCode = responseCode;
             return this;
@@ -31,10 +37,15 @@ public class ResponseException {
             return this;
         }
 
+        public ResponseException.Builder withmExceptionMessage(String responseMessage) {
+            mExceptionMessage = responseMessage;
+            return this;
+        }
         public ResponseException build() {
             ResponseException responseException = new ResponseException();
             responseException.mResponseCode = mResponseCode;
             responseException.mResponseMessage = mResponseMessage;
+            responseException.mExceptionMessage = mExceptionMessage;
             return responseException;
         }
 

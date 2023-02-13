@@ -14,7 +14,7 @@ public class ProcessFile  {
 
         else if (Operation.dataInsideList().contains(fileName) == false) {
             Operation.Loggers.log.error("File name does not contain in the directory ");
-            throw new FileNotFoundException("File name does not contain in the directory"+ Operation.Messages.FAILED);
+            throw new FileNotFoundException("File name does not contain in the directory ");
         }
 
     }

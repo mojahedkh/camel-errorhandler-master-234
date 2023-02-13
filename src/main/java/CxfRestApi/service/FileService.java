@@ -33,5 +33,11 @@ public interface FileService {
     @Produces(MediaType.APPLICATION_JSON)
     public void getFileName() throws Exception;
 
+    @GET
+    @Path("/getFileById/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void getFileById(@PathParam("id") int id ) throws Exception;
+
 
 }

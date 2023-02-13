@@ -44,7 +44,7 @@ public class FileRestServiceNormlizer {
     }
 
     public FileMoveResponse returnResponseFileName(Exchange exchange) throws Exception {
-        String message = exchange.getIn().getHeader("message", String.class);
+        String message = exchange.getIn().getBody(String.class);
 
         FileMoveResponse fileMoveResponse = new FileMoveResponse.Builder().
                 withResponseCode("0").
@@ -61,6 +61,7 @@ public class FileRestServiceNormlizer {
         ResponseException responseException = new ResponseException.Builder().
                 withResponseCode("1")
                 .withResponseMessage("Failed")
+                .withmExceptionMessage(exchange.getIn().getHeader("ExceptionMessage" , String.class))
                 .build();
 
         exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 400);
@@ -71,10 +72,10 @@ public class FileRestServiceNormlizer {
         Map filename = exchange.getIn().getBody(Map.class);
         FileMoveResponse fileMoveResponse = new FileMoveResponse.Builder().
                 withResponseCode("0").
-                withResponseMessage("Success : file-name " +filename.get("file_name").toString()).
+                withResponseMessage("Success : file-name " + filename.get("file_name").toString()).
                 build();
 
-        exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE , 201);
+        exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 201);
         return fileMoveResponse;
     }
 

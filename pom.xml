@@ -257,6 +257,8 @@
 
         <finalName>File_Rest_Jawwal_Project</finalName>
         <plugins>
+
+<!--            BND ( maven-bundle-plugin ) -->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
