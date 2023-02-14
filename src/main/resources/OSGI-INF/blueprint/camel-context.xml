@@ -79,8 +79,8 @@
             <setHeader headerName="fileName">
                 <simple>${file:name.noext}</simple>
             </setHeader>
+            <log message="body message from ${file:name} is ${body} "/>
             <process ref="AddToList"/>
-            <log message=" file ---> ${body} "/>
         </route>
 
         <!--        Read from cxf (End Points) and go to route based operation name -->
@@ -109,7 +109,6 @@
                 <simple>${header.operationName} == 'getFileName'</simple>
                 <to uri="direct:getFileName"/>
             </when>
-
         </route>
 
         <!--       POST file name to check it if (not null and contain in the directory ) then rename it  -->
@@ -121,11 +120,17 @@
             </unmarshal>
             <log message="Recived File from  (SendFileToSource) route , Request body :- ${body} "/>
             <bean ref="RenameFile" method="RenameFileFromTo"/>
-            <log message=" the message body is ${body} and the header is ${header.previousName}"/>
+            <to uri="activemq:queue:testQ"/>
             <bean ref="fileRestServiceNormlizer" method="returnResponseFileName"/>
             <marshal>
                 <json library="Gson"/>
             </marshal>
+        </route>
+
+        <route id="readFileNameFromQueue">
+            <from uri="activemq:queue:testQ"/>
+            <log message=" this is message from active mq ${body} "/>
+            <to uri="file:{{file.uri}}/output?fileName=${body}.txt&amp;noop=true"/>
         </route>
 
         <!--       POST list of file name method and use this name to insert it to the database -->
@@ -170,36 +175,23 @@
             <marshal>
                 <json library="Gson"/>
             </marshal>
-            <to uri="activemq:queue:testQ" />
             <log message="(getFileName) GET method is calling now ) "/>
         </route>
 
         <!--       Read from database -->
         <route id="updateRecordsFromDatabase">
-            <from uri="quartz://updateRecordsEveryTimePeriod?cron=0/15+*+*+*+*+?"/>
+            <from uri="quartz://updateRecordsEveryTimePeriod?cron={{cron.expression}}"/>
             <to uri="sql:{{sql.updateStutsRecords}}"/>
         </route>
 
         <route id="printAllDataFromDatabase">
-            <from uri="quartz://printAllDataFromDatabase?cron=0/15+*+*+*+*+?"/>
+            <from uri="quartz://printAllDataFromDatabase?cron={{cron.expression}}"/>
             <log message="print all data from database "/>
             <to uri="sql:{{sql.selectAll}}"/>
             <bean ref="FileMapper" method="fileMapperService"/>
         </route>
 
-        <route id="readFileNameFromQueue">
-            <from uri="activemq:queue:testQ" />
-            <unmarshal>
-                <json library="Gson" unmarshalTypeName="CxfRestApi.model.FileF" />
-            </unmarshal>
-            <transform>
-                <method ref="FileMapper" method="getName" />
-            </transform>
-<!--            <bean ref="FileMapper" method="getName" />-->
-            <log message=" this is message from active mq ${body} " />
 
-<!--            <to uri="file:{{file.uri}}/files" />-->
-        </route>
         <!--        <route id="splitListOfFileName" >-->
         <!--            <from uri="direct:" />-->
         <!--            <from uri="sql:{{sql.selectSpecificNumberOfRecords}}"/>-->

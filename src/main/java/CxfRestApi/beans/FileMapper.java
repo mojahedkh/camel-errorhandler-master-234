@@ -13,7 +13,6 @@ public class FileMapper {
 
     public List<File> fileMapperService(List<Map<String, Object>> fileMapper, Exchange exchange) {
 
-
         List<File> jopList = new ArrayList<File>();
         int index = 0;
         for (Map<String, Object> listOfFile : fileMapper) {
@@ -33,9 +32,8 @@ public class FileMapper {
     public Map<String, Object> getFileName(List<Map<String, Object>> listOfFileName) {
         return listOfFileName.get(0);
     }
+    public void  getFileBody(Exchange exchange){
 
-    public  String getName ( Map<String, Object> file ){
-        return (String) file.get("file_name");
     }
 
 }

@@ -52,6 +52,7 @@ public class FileRestServiceNormlizer {
                 build();
 
         exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 201);
+        exchange.getOut().setHeader("fileName" , message);
         return fileMoveResponse;
 
     }
@@ -65,7 +66,7 @@ public class FileRestServiceNormlizer {
                 .build();
 
         exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 400);
-        return responseException;
+        return responseException;   
     }
 
     public FileMoveResponse fileRenameRequest(Exchange exchange) {

@@ -12,7 +12,7 @@ public class RenameFile {
         FileRenameRequest fileRenameRequest = (FileRenameRequest) exchange.getIn().getBody();
         String message = fileRenameRequest.getFileName();
         ProcessFile.process(message);
-        exchange.getOut().setHeader("previousName" , message);
+        exchange.getOut().setHeader("previousName", message);
         String oldName = message;
         message = message + "_Moved_" + Operation.systemDate() + "_Rest";
         Operation.Loggers.log.info("Rename File from {" + oldName + "} to {" + message + "}");
