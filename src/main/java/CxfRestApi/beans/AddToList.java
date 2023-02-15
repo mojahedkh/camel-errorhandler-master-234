@@ -7,17 +7,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class AddToList implements Processor {
     public static List<String> fileName;
-    public static Map<String , String > fileWithBody ;
+    public static Map<String, String> fileWithBody ;
 
     Logger log = LoggerFactory.getLogger(RenameFile.class);
 
     public AddToList() {
         fileName = new ArrayList<>();
+        fileWithBody = new HashMap<>();
     }
 
     @Override
@@ -27,7 +29,15 @@ public class AddToList implements Processor {
         String fileContent = exchange.getIn().getBody(String.class);
         fileName.add(fileNameFromHeader);
         Operation.printAll(fileName);
-        fileWithBody.put(fileNameFromHeader , fileContent) ;
+        log.info(" inside "+AddToList.class.getName()+" file name is "+fileNameFromHeader +" file content  " + fileContent);
+        fileWithBody.put(fileNameFromHeader, fileContent);
+
+    }
+
+    public void  getBodyTotheFile(Exchange exchange){
+        String fileName = exchange.getIn().getHeader("fileName" , String.class);
+        String body = AddToList.fileWithBody.get(fileName);
+        exchange.getOut().setBody(body);
     }
 
 

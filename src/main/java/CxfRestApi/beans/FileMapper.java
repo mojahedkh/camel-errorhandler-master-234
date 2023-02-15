@@ -3,6 +3,7 @@ package CxfRestApi.beans;
 import CxfRestApi.constant.Operation;
 import CxfRestApi.model.File;
 import org.apache.camel.Exchange;
+import org.apache.camel.ProducerTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,8 @@ public class FileMapper {
             jopList.add(file);
             Operation.Loggers.log.info("record [" + index + "]" + "{file id} :- " + file.getId() + "{file name} :- " + file.getFileName() + " {stuts}" + file.getStuts());
             index++;
+
+            // producer template
         }
 
         return jopList;
@@ -32,7 +35,8 @@ public class FileMapper {
     public Map<String, Object> getFileName(List<Map<String, Object>> listOfFileName) {
         return listOfFileName.get(0);
     }
-    public void  getFileBody(Exchange exchange){
+
+    public void getFileBody(Exchange exchange) {
 
     }
 

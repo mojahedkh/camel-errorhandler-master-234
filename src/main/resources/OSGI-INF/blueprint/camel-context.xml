@@ -62,8 +62,8 @@
             <handled>
                 <constant>true</constant>
             </handled>
-            <log loggingLevel="ERROR" message="there is Exception Occur here "/>
-            <log message="Exception handling Message payloads :- ${body} , Exception messgae   :- ${exception.message}  "/>
+            <log loggingLevel="ERROR"
+                 message="Exception handling Message payloads :- ${body} , Exception messgae  :- ${exception.message}  "/>
             <setHeader headerName="ExceptionMessage">
                 <simple>${exception.message}</simple>
             </setHeader>
@@ -119,7 +119,7 @@
                       unmarshalTypeName="CxfRestApi.model.FileRenameRequest"/>
             </unmarshal>
             <log message="Recived File from  (SendFileToSource) route , Request body :- ${body} "/>
-            <bean ref="RenameFile" method="RenameFileFromTo"/>
+            <bean ref="fileRestServiceNormlizer" method="getFileName"/>
             <to uri="activemq:queue:testQ"/>
             <bean ref="fileRestServiceNormlizer" method="returnResponseFileName"/>
             <marshal>
@@ -130,7 +130,15 @@
         <route id="readFileNameFromQueue">
             <from uri="activemq:queue:testQ"/>
             <log message=" this is message from active mq ${body} "/>
-            <to uri="file:{{file.uri}}/output?fileName=${body}.txt&amp;noop=true"/>
+            <setHeader headerName="fileName">
+                <simple>${body}</simple>
+            </setHeader>
+            <bean ref="RenameFile" method="RenameFileFromTo"/>
+            <log message=" this is headear from active mq ${header.updatedFileName} and body ${body} "/>
+            <to uri="file:{{file.uri}}/output?fileName=${header.updatedFileName}.txt"/>
+            <transform>
+                <simple>${header.updatedFileName}</simple>
+            </transform>
         </route>
 
         <!--       POST list of file name method and use this name to insert it to the database -->
@@ -167,6 +175,7 @@
             </marshal>
         </route>
 
+
         <!--       GET file name method   -->
         <route id="getFileName">
             <from uri="direct:getFileName"/>
@@ -191,7 +200,6 @@
             <bean ref="FileMapper" method="fileMapperService"/>
         </route>
 
-
         <!--        <route id="splitListOfFileName" >-->
         <!--            <from uri="direct:" />-->
         <!--            <from uri="sql:{{sql.selectSpecificNumberOfRecords}}"/>-->
@@ -207,17 +215,17 @@
                   id="Camel_HttpMethods_Context">
 
         <!-- Call POST ( list of files ) Method by camel   -->
-        <!--        <route id="postFileName">-->
-        <!--            <from uri="quartz://postEveryTimePeriod?cron=0/15+*+*+*+*+?"/>-->
-        <!--            <setHeader headerName="CamelHttpMethod">-->
-        <!--                <constant>POST</constant>-->
-        <!--            </setHeader>-->
-        <!--            <log message=" ${body} "/>-->
-        <!--            <transform>-->
-        <!--                <simple>TCRM</simple>-->
-        <!--            </transform>-->
-        <!--            <to uri="http://localhost:9001/fileService/moveFile"/>-->
-        <!--        </route>-->
+        <!--                <route id="postFileName">-->
+        <!--                    <from uri="quartz://postEveryTimePeriod?cron=0/15+*+*+*+*+?"/>-->
+        <!--                    <setHeader headerName="CamelHttpMethod">-->
+        <!--                        <constant>POST</constant>-->
+        <!--                    </setHeader>-->
+        <!--                    <log message=" ${body} "/>-->
+        <!--                    <transform>-->
+        <!--                        <simple>TCRM</simple>-->
+        <!--                    </transform>-->
+        <!--                    <to uri="http://localhost:9001/fileService/moveFile"/>-->
+        <!--                </route>-->
 
         <!-- Call GET ( file name ) Method by camel   -->
         <route id="getFileNameRoute">
@@ -228,7 +236,6 @@
             <to uri="http://localhost:9001/fileService/getFileName"/>
             <log message="Response from (getFileName) request is ${body} every 5sec"/>
         </route>
-
 
     </camelContext>
 

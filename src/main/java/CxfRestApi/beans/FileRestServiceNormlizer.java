@@ -52,7 +52,7 @@ public class FileRestServiceNormlizer {
                 build();
 
         exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 201);
-        exchange.getOut().setHeader("fileName" , message);
+        exchange.getOut().setHeader("fileName", message);
         return fileMoveResponse;
 
     }
@@ -62,11 +62,11 @@ public class FileRestServiceNormlizer {
         ResponseException responseException = new ResponseException.Builder().
                 withResponseCode("1")
                 .withResponseMessage("Failed")
-                .withmExceptionMessage(exchange.getIn().getHeader("ExceptionMessage" , String.class))
+                .withmExceptionMessage(exchange.getIn().getHeader("ExceptionMessage", String.class))
                 .build();
 
         exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 400);
-        return responseException;   
+        return responseException;
     }
 
     public FileMoveResponse fileRenameRequest(Exchange exchange) {
@@ -80,8 +80,11 @@ public class FileRestServiceNormlizer {
         return fileMoveResponse;
     }
 
-    public String getFileName() {
-        return Operation.File.getFileName();
+    public String getFileName(Exchange exchange) {
+        FileRenameRequest fileRenameRequest = (FileRenameRequest) exchange.getIn().getBody();
+        String message = fileRenameRequest.getFileName();
+        return message;
+
     }
 
 }

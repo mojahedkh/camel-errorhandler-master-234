@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1676356782354
+Bnd-LastModified: 1676443265110
 Build-Jdk: 1.8.0_202
 Built-By: Mujahed.Kharasani
 Bundle-Blueprint: OSGI-INF/blueprint/camel-context.xml
