@@ -23,7 +23,6 @@ public class ResponseException {
 
         private String mResponseCode;
         private String mResponseMessage;
-
         private  String mExceptionMessage ;
 
 

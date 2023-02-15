@@ -14,7 +14,7 @@ public class RenameFile {
         String fileName = exchange.getIn().getHeader("fileName" , String.class);
         String body = AddToList.fileWithBody.get(fileName);
 
-        ProcessFile.process(message);
+        ProcessFile.process(message);   // check
         String oldName = message;
         message = message + "_Moved_" + Operation.systemDate() + "_Rest";
         Operation.Loggers.log.info("Rename File from {" + oldName + "} to {" + message + "}");

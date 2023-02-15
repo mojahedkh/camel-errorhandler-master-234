@@ -30,6 +30,7 @@
     <bean id="ProcessFile" class="CxfRestApi.beans.ProcessFile"/>
     <bean id="generateOrder" class="CxfRestApi.beans.GeneratedOrder"/>
     <bean id="FileMapper" class="CxfRestApi.beans.FileMapper"/>
+    <bean id="ReadFromDirectory" class="CxfRestApi.beans.ReadFromDirectory"/>
 
     <!--End Beans -->
 
@@ -43,10 +44,22 @@
         <property name="password" value="root"/>
     </bean>
 
+
+    <bean id="dataSourceForfileJopUpdatedDatabase" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/fileJopUpdated?characterEncoding=utf8"/>
+        <property name="username" value="root"/>
+        <property name="password" value="root"/>
+    </bean>
+
     <bean id="sql" class="org.apache.camel.component.sql.SqlComponent">
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
+    <bean id="sql2" class="org.apache.camel.component.sql.SqlComponent">
+        <property name="dataSource" ref="dataSourceForfileJopUpdatedDatabase"/>
+    </bean>
 
     <!--    End bean to connect Database -->
 
@@ -109,8 +122,9 @@
                 <simple>${header.operationName} == 'getFileName'</simple>
                 <to uri="direct:getFileName"/>
             </when>
+
         </route>
-        
+
         <!--       POST file name to check it if (not null and contain in the directory ) then rename it  -->
         <route id="fileRenameService">
             <from uri="direct:fileRenameService"/>
@@ -126,7 +140,6 @@
                 <json library="Gson"/>
             </marshal>
         </route>
-
 
         <route id="readFileNameFromQueue">
             <from uri="activemq:queue:testQ"/>
@@ -189,18 +202,40 @@
         </route>
 
         <!--       Read from database -->
-        <route id="updateRecordsFromDatabase">
-            <from uri="quartz://updateRecordsEveryTimePeriod?cron={{cron.expression}}"/>
-            <to uri="sql:{{sql.updateStutsRecords}}"/>
-        </route>
+<!--        <route id="updateRecordsFromDatabase">-->
+<!--            <from uri="quartz://updateRecordsEveryTimePeriod?cron={{cron.expression}}"/>-->
+<!--            <to uri="sql:{{sql.updateStutsRecords}}"/>-->
+<!--            <to uri="sql:{{sql.selectSpecificNumberOfRecords}}"/>-->
+<!--            <bean ref="FileMapper" method="getFileName"/>-->
+<!--            <log message="hereeeeeeeeeeeeeeeeeeeeeeeeee ${body} " />-->
+<!--            <bean ref="generateOrder" method="generateOrderToFileJopUpdated" />-->
+<!--        </route>-->
+
+
 
         <route id="printAllDataFromDatabase">
             <from uri="quartz://printAllDataFromDatabase?cron={{cron.expression}}"/>
             <log message="print all data from database "/>
-            <to uri="sql:{{sql.selectAll}}"/>
+            <to uri="sql:{{sql.selectSpecificNumberOfRecords}}"/>
             <bean ref="FileMapper" method="fileMapperService"/>
+            <bean ref="generateOrder" method="generateOrderToFileJopUpdated" />
+            <to uri="sql:{{sql.updateStutsRecords}}"/>
         </route>
 
+        <route id="printRequest">
+            <from uri="direct:printRequest" />
+            <log message=" move from file_jop table to fileUpdated  and change stuts to READ " />
+            <to uri="sql2:{{sql.insertIntofileUpdated}}" />
+        </route>
+
+        <!--        <route id="readFromFiles">-->
+        <!--            <from uri="quartz://readFromFileDirectoryEveryTimePeriod?cron={{cron.expression2}}"/>-->
+        <!--            <setBody>-->
+        <!--                <constant> TCRM </constant>-->
+        <!--            </setBody>-->
+        <!--            <log message="heeeeeeeeeeey iam here " />-->
+        <!--            <bean ref="ReadFromDirectory"  method="ReadFromFiles"/>-->
+        <!--        </route>-->
         <!--        <route id="splitListOfFileName" >-->
         <!--            <from uri="direct:" />-->
         <!--            <from uri="sql:{{sql.selectSpecificNumberOfRecords}}"/>-->
@@ -237,7 +272,6 @@
             <to uri="http://localhost:9001/fileService/getFileName"/>
             <log message="Response from (getFileName) request is ${body} every 5sec"/>
         </route>
-
 
     </camelContext>
 

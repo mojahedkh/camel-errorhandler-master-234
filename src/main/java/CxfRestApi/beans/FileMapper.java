@@ -36,8 +36,5 @@ public class FileMapper {
         return listOfFileName.get(0);
     }
 
-    public void getFileBody(Exchange exchange) {
-
-    }
 
 }
