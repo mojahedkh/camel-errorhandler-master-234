@@ -1,8 +1,6 @@
 package CxfRestApi.beans;
 
-import CxfRestApi.Exception.InvalidFileNameException;
 import CxfRestApi.constant.Operation;
-import CxfRestApi.model.FileRenameRequest;
 import org.apache.camel.Exchange;
 
 public class RenameFile {
@@ -14,7 +12,7 @@ public class RenameFile {
         String fileName = exchange.getIn().getHeader("fileName" , String.class);
         String body = AddToList.fileWithBody.get(fileName);
 
-        ProcessFile.process(message);   // check
+        Operation.checkFileName(message) ; // check
         String oldName = message;
         message = message + "_Moved_" + Operation.systemDate() + "_Rest";
         Operation.Loggers.log.info("Rename File from {" + oldName + "} to {" + message + "}");

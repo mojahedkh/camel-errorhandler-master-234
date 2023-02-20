@@ -1,5 +1,7 @@
 package CxfRestApi.constant;
 
+import CxfRestApi.Exception.FileNotFoundException;
+import CxfRestApi.Exception.InvalidFileNameException;
 import CxfRestApi.beans.AddToList;
 import CxfRestApi.model.FileMoveRequest;
 import org.slf4j.Logger;
@@ -67,6 +69,17 @@ public class Operation {
         for (String filesName : fileName) {
             Operation.Loggers.log.info(" Inside file name " + "[" + index + "]" + filesName);
             index++;
+        }
+    }
+    public static void checkFileName(String fileName) throws Exception{
+        if (fileName.isEmpty()) {
+            Operation.Loggers.log.error("File name is empty from request body");
+            throw new InvalidFileNameException(" File name is empty" + Operation.Messages.FAILED);
+        }
+
+        else if (Operation.dataInsideList().contains(fileName) == false) {
+            Operation.Loggers.log.error("File name does not contain in the directory ");
+            throw new FileNotFoundException("File name does not contain in the directory ");
         }
     }
 }

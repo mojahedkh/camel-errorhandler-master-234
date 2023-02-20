@@ -241,6 +241,12 @@
             <version>5.1.17</version>
         </dependency>
 
+<!--        <dependency>-->
+<!--            <groupId>org.apache.camel.springboot</groupId>-->
+<!--            <artifactId>camel-soap-starter</artifactId>-->
+<!--            <version>${camel.version}</version>-->
+<!--        </dependency>-->
+
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-blueprint</artifactId>

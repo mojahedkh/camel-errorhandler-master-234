@@ -8,6 +8,7 @@ import CxfRestApi.model.ResponseException;
 import org.apache.camel.Exchange;
 import org.apache.cxf.message.MessageContentsList;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,7 +17,6 @@ import java.util.Map;
  */
 
 public class FileRestServiceNormlizer {
-    public ProcessFile processFile = new ProcessFile();
 
     public void normlizeFileMoveRequest(Exchange exchange) throws Exception {
         MessageContentsList msgList = (MessageContentsList) exchange.getIn().getBody();
@@ -43,7 +43,7 @@ public class FileRestServiceNormlizer {
         return fileMoveResponse;
     }
 
-    public FileMoveResponse returnResponseFileName(Exchange exchange) throws Exception {
+    public FileMoveResponse returnResponseInsertFileName(Exchange exchange) throws Exception {
         String message = exchange.getIn().getBody(String.class);
 
         FileMoveResponse fileMoveResponse = new FileMoveResponse.Builder().
@@ -84,7 +84,8 @@ public class FileRestServiceNormlizer {
         FileRenameRequest fileRenameRequest = (FileRenameRequest) exchange.getIn().getBody();
         String message = fileRenameRequest.getFileName();
         return message;
-
     }
-
+    public Map<String, Object> getFileNameFromDatabase(List<Map<String, Object>> listOfFileName) {
+        return listOfFileName.get(0);
+    }
 }

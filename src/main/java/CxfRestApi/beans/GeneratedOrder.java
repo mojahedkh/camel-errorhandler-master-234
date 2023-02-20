@@ -21,19 +21,26 @@ public class GeneratedOrder {
         return file;
     }
 
-    public void generateOrderToFileJopUpdated(List<File>  data, Exchange exchange) {
+    public void generateOrderToFileJopUpdated(List<File> data, Exchange exchange) {
         ProducerTemplate template = exchange.getContext().createProducerTemplate();
 
-        for (File records :data ){
-            Operation.Loggers.log.info("file name "+records.getFileName());
-
+        for (File records : data) {
+            Operation.Loggers.log.info("file name " + records.getFileName());
             Map<String, Object> fileUpdated = new HashMap<>();
-
             fileUpdated.put("file_name", records.getFileName());
-
             fileUpdated.put("id", records.getId());
-
-            template.sendBody("direct:printRequest" ,fileUpdated );
+            template.sendBody("direct:insertIntofileUpdated", fileUpdated);
         }
     }
+
+    public void genareteOrderToInsertListOfFiles(String[] listOfFiles  , Exchange exchange ){
+        ProducerTemplate template = exchange.getContext().createProducerTemplate();
+        for ( String fileName : listOfFiles){
+            Map<String, Object> fileUpdated = new HashMap<>();
+            fileUpdated.put("file_name",fileName);
+            template.sendBody("direct:insertIntofileJop", fileUpdated);
+        }
+    }
+
+
 }

@@ -32,9 +32,7 @@ public class FileMapper {
         return jopList;
     }
 
-    public Map<String, Object> getFileName(List<Map<String, Object>> listOfFileName) {
-        return listOfFileName.get(0);
-    }
+
 
 
 }

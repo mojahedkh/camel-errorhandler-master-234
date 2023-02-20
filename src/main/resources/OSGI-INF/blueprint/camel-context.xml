@@ -16,6 +16,7 @@
                   loggingFeatureEnabled="true">
 
     </cxf:rsServer>
+
     <!--End Rest-Servers Endpoint-->
 
     <!-- Connect ActiveMq -->
@@ -27,7 +28,6 @@
     <bean id="RenameFile" class="CxfRestApi.beans.RenameFile"/>
     <bean id="AddToList" class="CxfRestApi.beans.AddToList"/>
     <bean id="fileRestServiceNormlizer" class="CxfRestApi.beans.FileRestServiceNormlizer"/>
-    <bean id="ProcessFile" class="CxfRestApi.beans.ProcessFile"/>
     <bean id="generateOrder" class="CxfRestApi.beans.GeneratedOrder"/>
     <bean id="FileMapper" class="CxfRestApi.beans.FileMapper"/>
     <bean id="ReadFromDirectory" class="CxfRestApi.beans.ReadFromDirectory"/>
@@ -44,21 +44,8 @@
         <property name="password" value="root"/>
     </bean>
 
-
-    <bean id="dataSourceForfileJopUpdatedDatabase" class="org.apache.commons.dbcp.BasicDataSource"
-          destroy-method="close">
-        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://localhost:3306/fileJopUpdated?characterEncoding=utf8"/>
-        <property name="username" value="root"/>
-        <property name="password" value="root"/>
-    </bean>
-
     <bean id="sql" class="org.apache.camel.component.sql.SqlComponent">
         <property name="dataSource" ref="dataSource"/>
-    </bean>
-
-    <bean id="sql2" class="org.apache.camel.component.sql.SqlComponent">
-        <property name="dataSource" ref="dataSourceForfileJopUpdatedDatabase"/>
     </bean>
 
     <!--    End bean to connect Database -->
@@ -135,7 +122,7 @@
             <log message="Recived File from  (SendFileToSource) route , Request body :- ${body} "/>
             <bean ref="fileRestServiceNormlizer" method="getFileName"/>
             <to uri="activemq:queue:testQ"/>
-            <bean ref="fileRestServiceNormlizer" method="returnResponseFileName"/>
+            <bean ref="fileRestServiceNormlizer" method="returnResponseInsertFileName"/>
             <marshal>
                 <json library="Gson"/>
             </marshal>
@@ -162,6 +149,7 @@
                 <json library="Gson"
                       unmarshalTypeName="CxfRestApi.model.FileMoveRequest"/>
             </unmarshal>
+            <wireTap uri="direct:completeInsetOrder" />
             <bean ref="fileRestServiceNormlizer" method="returnResponseInsertFilesName"/>
             <marshal>
                 <json library="Gson"/>
@@ -169,8 +157,12 @@
             <log message="(insertListOfFiles) POST method is calling now ) "/>
         </route>
 
+        <route id="completeInsetOrder">
+            <from uri="direct:completeInsetOrder" />
+            <bean ref="generateOrder" method="genareteOrderToInsertListOfFiles" />
+        </route>
         <!--       POST file name method and use this name to store in the variable te read it later
-                 , Insert data to (file_job) table in (job) database NOTE:- see Camel.properites file-->
+                 , Insert data to (file_job) table in (job) database NOTE:- see Camel.properites file -->
         <route id="insertFileName">
             <from uri="direct:insertFileName"/>
             <unmarshal>
@@ -194,54 +186,40 @@
         <route id="getFileName">
             <from uri="direct:getFileName"/>
             <to uri="sql:{{sql.selectLastRecord}}"/>
-            <bean ref="FileMapper" method="getFileName"/>
+            <bean ref="fileRestServiceNormlizer" method="getFileNameFromDatabase"/>
             <marshal>
                 <json library="Gson"/>
             </marshal>
             <log message="(getFileName) GET method is calling now ) "/>
         </route>
 
-        <!--       Read from database -->
-<!--        <route id="updateRecordsFromDatabase">-->
-<!--            <from uri="quartz://updateRecordsEveryTimePeriod?cron={{cron.expression}}"/>-->
-<!--            <to uri="sql:{{sql.updateStutsRecords}}"/>-->
-<!--            <to uri="sql:{{sql.selectSpecificNumberOfRecords}}"/>-->
-<!--            <bean ref="FileMapper" method="getFileName"/>-->
-<!--            <log message="hereeeeeeeeeeeeeeeeeeeeeeeeee ${body} " />-->
-<!--            <bean ref="generateOrder" method="generateOrderToFileJopUpdated" />-->
-<!--        </route>-->
-
-
-
+        <!--       -->
         <route id="printAllDataFromDatabase">
             <from uri="quartz://printAllDataFromDatabase?cron={{cron.expression}}"/>
-            <log message="print all data from database "/>
+            <log message="check for updated ......  "/>
             <to uri="sql:{{sql.selectSpecificNumberOfRecords}}"/>
             <bean ref="FileMapper" method="fileMapperService"/>
             <bean ref="generateOrder" method="generateOrderToFileJopUpdated" />
             <to uri="sql:{{sql.updateStutsRecords}}"/>
         </route>
 
-        <route id="printRequest">
+        <route id="insertIntofileUpdated">
             <from uri="direct:printRequest" />
-            <log message=" move from file_jop table to fileUpdated  and change stuts to READ " />
-            <to uri="sql2:{{sql.insertIntofileUpdated}}" />
+            <log message=" move from file_jop table to fileUpdated and change stuts to READ " />
+            <to uri="sql:{{sql.insertIntofileUpdated}}" />
         </route>
 
-        <!--        <route id="readFromFiles">-->
-        <!--            <from uri="quartz://readFromFileDirectoryEveryTimePeriod?cron={{cron.expression2}}"/>-->
-        <!--            <setBody>-->
-        <!--                <constant> TCRM </constant>-->
-        <!--            </setBody>-->
-        <!--            <log message="heeeeeeeeeeey iam here " />-->
-        <!--            <bean ref="ReadFromDirectory"  method="ReadFromFiles"/>-->
-        <!--        </route>-->
-        <!--        <route id="splitListOfFileName" >-->
-        <!--            <from uri="direct:" />-->
-        <!--            <from uri="sql:{{sql.selectSpecificNumberOfRecords}}"/>-->
-        <!--            <log message="body message inside splitListOfFileName  ${body} " />-->
-        <!--            <bean ref="FileMapper" method=""   />-->
-        <!--        </route>-->
+        <route id="insertIntofileJop">
+            <from uri="direct:printRequest" />
+            <log message=" insertOrder with defailt stuts NON  " />
+            <to uri="sql:{{sql.insertOrder}}" />
+        </route>
+
+        <route id="testConsumingFromFile">
+            <from uri="quartz://testConsumingFromFile?cron={{cron.expression2}}"/>
+            <pollEnrich uri="file:CXF_TEST/files?fileName=TCRM.txt?noop=true"/>
+            <log message="test consuming file from direct route , result :- ( ${body} ) " />
+        </route>
 
     </camelContext>
 
