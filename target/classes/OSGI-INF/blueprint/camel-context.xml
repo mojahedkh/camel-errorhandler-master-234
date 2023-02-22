@@ -14,7 +14,6 @@
                   address="http://localhost:9001"
                   serviceClass="CxfRestApi.service.FileService"
                   loggingFeatureEnabled="true">
-
     </cxf:rsServer>
 
     <!--End Rest-Servers Endpoint-->
@@ -149,7 +148,7 @@
                 <json library="Gson"
                       unmarshalTypeName="CxfRestApi.model.FileMoveRequest"/>
             </unmarshal>
-            <wireTap uri="direct:completeInsetOrder" />
+            <wireTap uri="direct:completeInsetOrder"/>
             <bean ref="fileRestServiceNormlizer" method="returnResponseInsertFilesName"/>
             <marshal>
                 <json library="Gson"/>
@@ -158,8 +157,8 @@
         </route>
 
         <route id="completeInsetOrder">
-            <from uri="direct:completeInsetOrder" />
-            <bean ref="generateOrder" method="genareteOrderToInsertListOfFiles" />
+            <from uri="direct:completeInsetOrder"/>
+            <bean ref="generateOrder" method="genareteOrderToInsertListOfFiles"/>
         </route>
         <!--       POST file name method and use this name to store in the variable te read it later
                  , Insert data to (file_job) table in (job) database NOTE:- see Camel.properites file -->
@@ -199,27 +198,27 @@
             <log message="check for updated ......  "/>
             <to uri="sql:{{sql.selectSpecificNumberOfRecords}}"/>
             <bean ref="FileMapper" method="fileMapperService"/>
-            <bean ref="generateOrder" method="generateOrderToFileJopUpdated" />
+            <bean ref="generateOrder" method="generateOrderToFileJopUpdated"/>
             <to uri="sql:{{sql.updateStutsRecords}}"/>
         </route>
 
         <route id="insertIntofileUpdated">
-            <from uri="direct:printRequest" />
-            <log message=" move from file_jop table to fileUpdated and change stuts to READ " />
-            <to uri="sql:{{sql.insertIntofileUpdated}}" />
+            <from uri="direct:printRequest"/>
+            <log message=" move from file_jop table to fileUpdated and change stuts to READ "/>
+            <to uri="sql:{{sql.insertIntofileUpdated}}"/>
         </route>
 
         <route id="insertIntofileJop">
-            <from uri="direct:printRequest" />
-            <log message=" insertOrder with defailt stuts NON  " />
-            <to uri="sql:{{sql.insertOrder}}" />
+            <from uri="direct:printRequest"/>
+            <log message=" insertOrder with defailt stuts NON  "/>
+            <to uri="sql:{{sql.insertOrder}}"/>
         </route>
 
-        <route id="testConsumingFromFile">
-            <from uri="quartz://testConsumingFromFile?cron={{cron.expression2}}"/>
-            <pollEnrich uri="file:CXF_TEST/files?fileName=TCRM.txt?noop=true"/>
-            <log message="test consuming file from direct route , result :- ( ${body} ) " />
-        </route>
+<!--        <route id="testConsumingFromFile">-->
+<!--            <from uri="quartz://testConsumingFromFile?cron={{cron.expression2}}"/>-->
+<!--            <pollEnrich uri="file:CXF_TEST/files?fileName=TCRM.txt?noop=true"/>-->
+<!--            <log message="test consuming file from direct route , result :- ( ${body} ) "/>-->
+<!--        </route>-->
 
     </camelContext>
 

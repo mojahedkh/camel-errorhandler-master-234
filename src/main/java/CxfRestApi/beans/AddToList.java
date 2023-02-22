@@ -28,7 +28,6 @@ public class AddToList implements Processor {
         String fileContent = exchange.getIn().getBody(String.class);
         fileName.add(fileNameFromHeader);
         Operation.printAll(fileName);
-        Operation.Loggers.log.info(" inside "+AddToList.class.getName()+" file name is "+fileNameFromHeader +" file content  " + fileContent);
         fileWithBody.put(fileNameFromHeader, fileContent);
 
     }
